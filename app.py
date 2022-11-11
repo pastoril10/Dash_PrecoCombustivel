@@ -11,7 +11,7 @@ from dash_bootstrap_templates import ThemeSwitchAIO
 
 
 #importando e tratamento dos dados
-df = pd.read_table("C:/projetos/meus/meus_dash/meu-dash-preco-combustivel/2004-2021.tsv")
+df = pd.read_table("meu-dash-preco-combustivel/data/2004-2021.tsv")
 
 df["DATA INICIAL"] = pd.to_datetime(df["DATA INICIAL"])
 df["DATA FINAL"] = pd.to_datetime(df["DATA FINAL"])
