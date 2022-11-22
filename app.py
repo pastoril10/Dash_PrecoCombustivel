@@ -2,32 +2,19 @@
 from datetime import datetime
 from this import d
 import pandas as pd
+
 import dash
 from dash import html, dcc, Input, Output, State
 import dash_bootstrap_components as dbc
-import plotly.express as px
-import plotly.graph_objects as go
+import dash_auth
 from dash_bootstrap_templates import ThemeSwitchAIO
 
-
-#importando e tratamento dos dados
-df = pd.read_table("meu-dash-preco-combustivel/data/2004-2021.tsv")
-
-df["DATA INICIAL"] = pd.to_datetime(df["DATA INICIAL"])
-df["DATA FINAL"] = pd.to_datetime(df["DATA FINAL"])
-df["MES"] = df["DATA INICIAL"].dt.month
-df["ANO"] = df["DATA INICIAL"].dt.year
-df['MES/ANO'] = df['DATA INICIAL'].dt.strftime('%m/%Y')
+import plotly.express as px
+import plotly.graph_objects as go
 
 
-df.rename(columns={"DATA INICIAL":"DATA", "PREÇO MÉDIO REVENDA": "VALOR REVENDA"},inplace = True)
-
-df_gasolina = df[df["PRODUTO"] == "GASOLINA COMUM"].reset_index(drop = ["index"])
-df_gasolina = df_gasolina[["DATA", "REGIÃO", "ESTADO", "VALOR REVENDA", "ANO", "MES", "MES/ANO"]]
-
-df_gasolina["ANO"] = df_gasolina["ANO"].astype(str)
-df_gasolina.at[df_gasolina.index[1], "ANO"]
-
+#IMPORTANDO DADOS
+df_gasolina = pd.read_csv("meu-dash-preco-combustivel/data/2004-2021-gasolina.csv")
 df_store = df_gasolina.to_dict()
 
 # ========= App ============== #
@@ -59,6 +46,9 @@ main_config = {
     "margin": {"l":0, "r":0, "t":10, "b":0}
 
 }
+
+# VALID_USERNAME_PASSWORD_PAIRS = {"julio":"123456"}
+# auth = dash_auth.BasicAuth(app, VALID_USERNAME_PASSWORD_PAIRS)
 
 # =========  Layout  =========== #
 app.layout = dbc.Container(children=[
@@ -406,13 +396,9 @@ def func(data, est1, est2, toggle):
     df_final["VALOR REVENDA"] = df_estado1["VALOR REVENDA"] - df_estado2["VALOR REVENDA"]
 
     fig = go.Figure()
-
     fig.add_scatter(name = est1, x = df_final["DATA"], y = df_final["VALOR REVENDA"])
-    
     fig.add_scatter(name = est2, x = df_final["DATA"], y = df_final["VALOR REVENDA"].where(df_final["VALOR REVENDA"] > 0.0))
-
     fig.update_layout(main_config, height=350, template=template)
-
     fig.update_yaxes(range = [-0.7, 0.7])
 
     fig.add_annotation(text = f'{est2} MAIS BARATO', 
